@@ -1,0 +1,376 @@
+
+.host-chargers-page {
+  min-height: 100vh;
+  background: #f7faf8;
+  color: #17352a;
+}
+
+.host-chargers-header {
+  min-height: 76px;
+  padding: 16px 6%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  background: #fff;
+  border-bottom: 1px solid #e5ece7;
+}
+
+.host-chargers-nav {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+  font-size: 14px;
+}
+
+.host-chargers-nav a {
+  color: #28694b;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.host-chargers-nav span {
+  color: #64766c;
+}
+
+.host-chargers-content {
+  width: min(1120px, 90%);
+  margin: 0 auto;
+  padding: 48px 0 80px;
+}
+
+.host-chargers-content > h1 {
+  margin: 10px 0;
+  font-size: clamp(30px, 4vw, 44px);
+  letter-spacing: -1.2px;
+}
+
+.host-chargers-subtitle {
+  margin: 0 0 28px;
+  color: #65766c;
+  line-height: 1.7;
+}
+
+.host-charger-form-panel,
+.host-charger-list-section {
+  margin-top: 28px;
+  padding: 26px;
+  border: 1px solid #e2eae4;
+  border-radius: 20px;
+  background: #fff;
+  box-shadow: 0 8px 28px rgb(24 63 43 / 4%);
+}
+
+.host-charger-section-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 22px;
+}
+
+.host-charger-section-heading h2 {
+  margin: 0 0 7px;
+  font-size: 22px;
+}
+
+.host-charger-section-heading p {
+  margin: 0;
+  color: #6d7d73;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.host-charger-form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.host-charger-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  color: #304b3b;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.host-charger-form input,
+.host-charger-form textarea,
+.host-charger-form select {
+  width: 100%;
+  min-height: 46px;
+  padding: 12px 13px;
+  border: 1px solid #dce6de;
+  border-radius: 10px;
+  outline: none;
+  background: #fff;
+  color: #183b29;
+  font: inherit;
+  font-weight: 400;
+}
+
+.host-charger-form textarea {
+  resize: vertical;
+}
+
+.host-charger-form input:focus,
+.host-charger-form textarea:focus,
+.host-charger-form select:focus {
+  border-color: #268454;
+  box-shadow: 0 0 0 3px rgb(38 132 84 / 10%);
+}
+
+.full-width {
+  grid-column: 1 / -1;
+}
+
+.host-charger-form-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.host-chargers-alert {
+  margin: 18px 0;
+  padding: 14px 16px;
+  border-radius: 10px;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+
+.host-chargers-alert.error {
+  color: #a12b2b;
+  background: #fff0f0;
+  border: 1px solid #f3caca;
+}
+
+.host-chargers-alert.success {
+  color: #176b3b;
+  background: #effaf2;
+  border: 1px solid #bce4c8;
+}
+
+.host-chargers-alert a {
+  margin-left: 8px;
+  color: inherit;
+  font-weight: 700;
+}
+
+.host-charger-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.host-charger-card {
+  min-width: 0;
+  padding: 22px;
+  border: 1px solid #e1eae3;
+  border-radius: 16px;
+  background: #fff;
+}
+
+.host-charger-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.host-charger-category,
+.host-charger-active {
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: capitalize;
+}
+
+.host-charger-category {
+  background: #edf5ef;
+  color: #316848;
+}
+
+.host-charger-active.active {
+  background: #e8f8ed;
+  color: #16733b;
+}
+
+.host-charger-active.inactive {
+  background: #f1f1f1;
+  color: #666;
+}
+
+.host-charger-card h3 {
+  margin: 18px 0 6px;
+  overflow-wrap: anywhere;
+  font-size: 20px;
+}
+
+.host-charger-location,
+.host-charger-description {
+  color: #6b7a70;
+  font-size: 14px;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+
+.host-charger-location {
+  margin: 0;
+}
+
+.host-charger-description {
+  margin: 12px 0;
+}
+
+.host-charger-specs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 18px;
+}
+
+.host-charger-specs span {
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: #f4f7f4;
+  color: #405c49;
+  font-size: 13px;
+}
+
+.host-charger-price {
+  margin: 18px 0;
+  font-size: 24px;
+  font-weight: 750;
+}
+
+.host-charger-price span {
+  color: #738076;
+  font-size: 13px;
+  font-weight: 400;
+}
+
+.host-charger-card-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.host-deactivate-button {
+  background: #fff0f0;
+  color: #a12b2b;
+  border: 1px solid #f0cccc;
+}
+
+.host-deactivate-button:hover {
+  background: #ffe2e2;
+}
+
+.host-chargers-empty,
+.host-chargers-message {
+  padding: 40px 20px;
+  text-align: center;
+  color: #65766c;
+}
+
+.host-chargers-empty h3 {
+  color: #244733;
+}
+
+.host-chargers-empty p {
+  line-height: 1.6;
+}
+
+@media (max-width: 700px) {
+  .host-chargers-header {
+    padding: 16px 5%;
+    align-items: flex-start;
+  }
+
+  .host-chargers-nav {
+    justify-content: flex-end;
+    gap: 12px;
+  }
+
+  .host-chargers-content {
+    width: 92%;
+    padding-top: 30px;
+  }
+
+  .host-charger-form-panel,
+  .host-charger-list-section {
+    padding: 18px;
+  }
+
+  .host-charger-form,
+  .host-charger-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .host-charger-form-actions .button {
+    width: 100%;
+  }
+
+.charging-session-panel {
+  width: 100%;
+  margin-top: 1rem;
+  padding: 1rem;
+  border: 1px solid #d7e2e8;
+  border-radius: 12px;
+  background: #f8fbfc;
+}
+
+.charging-session-panel h3,
+.charging-session-panel h4 {
+  margin-top: 0;
+}
+
+.session-notice {
+  font-size: 0.875rem;
+  color: #805b18;
+}
+
+.meter-reading-form {
+  display: grid;
+  gap: 0.75rem;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #d7e2e8;
+}
+
+.meter-reading-form label {
+  display: grid;
+  gap: 0.35rem;
+  font-weight: 600;
+}
+
+.meter-reading-form input,
+.meter-reading-form textarea {
+  width: 100%;
+  padding: 0.7rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font: inherit;
+}
+
+.meter-reading-form textarea {
+  min-height: 80px;
+  resize: vertical;
+}
+
+.session-result {
+  margin-top: 1rem;
+  padding: 1rem;
+  border-radius: 10px;
+  background: #edf8ef;
+}
+
+.session-result p {
+  overflow-wrap: anywhere;
+}
+
+}

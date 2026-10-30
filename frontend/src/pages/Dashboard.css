@@ -1,0 +1,617 @@
+/* =========================================================
+   ChargeShare Dashboard — clean, responsive stylesheet
+   ========================================================= */
+
+.dashboard-page {
+  min-height: 100vh;
+  background: #f8faf6;
+  color: #18271f;
+}
+
+.dashboard-header {
+  min-height: 78px;
+  padding: 16px max(5%, calc((100% - 1200px) / 2));
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  border-bottom: 1px solid #e6ebe3;
+  background: #fff;
+}
+
+.dashboard-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 21px;
+  font-weight: 800;
+  letter-spacing: -0.8px;
+  text-decoration: none;
+}
+
+.dashboard-brand > span:last-child,
+.dashboard-brand > span:nth-child(2) {
+  color: #20764b;
+}
+
+.dashboard-brand-mark {
+  width: 35px;
+  height: 35px;
+  display: grid;
+  place-items: center;
+  border-radius: 10px;
+  background: #20764b;
+  color: #fff;
+  font-size: 25px;
+}
+
+.dashboard-nav {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  font-size: 13px;
+}
+
+.dashboard-nav > a {
+  color: #435349;
+}
+
+.dashboard-user {
+  max-width: 220px;
+  overflow: hidden;
+  color: #647067;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dashboard-content {
+  width: min(1100px, 90%);
+  margin: 0 auto;
+  padding: 60px 0 100px;
+}
+
+.dashboard-content > h1 {
+  margin: 12px 0;
+  font-family: 'Manrope', sans-serif;
+  font-size: clamp(32px, 5vw, 49px);
+  letter-spacing: -1.8px;
+  line-height: 1.2;
+}
+
+.dashboard-subtitle {
+  margin: 0;
+  color: #728077;
+  font-size: 14px;
+  line-height: 1.8;
+}
+
+.dashboard-error,
+.dashboard-notice {
+  margin: 16px 0;
+  padding: 14px 18px;
+  border-radius: 12px;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.dashboard-error {
+  border: 1px solid #f1cccc;
+  background: #fff4f2;
+  color: #a3332a;
+}
+
+.dashboard-notice {
+  border: 1px solid #a8dfbd;
+  background: #effaf2;
+  color: #176b3b;
+}
+
+.dashboard-stats {
+  margin: 35px 0;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.dashboard-stat {
+  min-width: 0;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  border: 1px solid #e4eae1;
+  border-radius: 14px;
+  background: #fff;
+}
+
+.dashboard-stat > span {
+  color: #6f7c72;
+  font-size: 12px;
+}
+
+.dashboard-stat > strong {
+  overflow-wrap: anywhere;
+  color: #1d7048;
+  font-family: 'Manrope', sans-serif;
+  font-size: 30px;
+  letter-spacing: -1px;
+}
+
+.dashboard-stat > small {
+  overflow-wrap: anywhere;
+  color: #89948b;
+  font-size: 11px;
+}
+
+.dashboard-panel {
+  min-width: 0;
+  padding: 27px;
+  border: 1px solid #e4eae1;
+  border-radius: 14px;
+  background: #fff;
+}
+
+.dashboard-panel-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.dashboard-panel-heading h2 {
+  margin: 0;
+  font-family: 'Manrope', sans-serif;
+  font-size: 21px;
+  letter-spacing: -0.5px;
+}
+
+.dashboard-panel-heading p {
+  margin: 8px 0 0;
+  color: #7b877e;
+  font-size: 12px;
+  line-height: 1.7;
+}
+
+.dashboard-empty {
+  padding: 42px 15px;
+  text-align: center;
+}
+
+.dashboard-empty-icon {
+  width: 48px;
+  height: 48px;
+  margin: 0 auto 14px;
+  display: grid;
+  place-items: center;
+  border-radius: 15px;
+  background: #edf5e9;
+  color: #20764b;
+  font-size: 29px;
+}
+
+.dashboard-empty h3 {
+  margin: 0 0 10px;
+  font-size: 16px;
+}
+
+.dashboard-empty p {
+  margin: 0 0 20px;
+  color: #7b877e;
+  font-size: 12px;
+  line-height: 1.8;
+}
+
+.booking-list {
+  margin-top: 22px;
+  min-width: 0;
+}
+
+.booking-row {
+  min-width: 0;
+  padding: 22px 0;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  border-top: 1px solid #edf0eb;
+}
+
+.booking-row > div {
+  min-width: 0;
+}
+
+.booking-row-details {
+  display: flex;
+  flex: 1 1 360px;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+.booking-row-details > strong {
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.booking-row-details > span {
+  color: #536258;
+  font-size: 13px;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+
+.booking-row strong {
+  font-size: 13px;
+}
+
+.booking-id {
+  color: #8a948c !important;
+  font-size: 11px !important;
+  overflow-wrap: anywhere;
+}
+
+.booking-row-actions {
+  display: flex;
+  flex: 0 1 320px;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 12px;
+  min-width: 0;
+}
+
+/* A booking with a charging session becomes a full-width card.
+   The session form no longer gets squeezed into the narrow action column. */
+.booking-row:has(.charging-session-panel) {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: stretch;
+  gap: 18px;
+}
+
+.booking-row:has(.charging-session-panel) > .booking-row-details {
+  width: 100%;
+}
+
+.booking-row:has(.charging-session-panel) > .booking-row-actions {
+  display: contents;
+}
+
+.booking-row:has(.charging-session-panel) > .booking-row-actions > .booking-status,
+.booking-row:has(.charging-session-panel) > .booking-row-actions > .charging-session-panel {
+  grid-column: 1 / -1;
+  justify-self: stretch;
+  width: 100%;
+}
+
+.booking-row:has(.charging-session-panel) > .booking-row-actions > .booking-status {
+  justify-self: start;
+  width: fit-content;
+}
+
+.booking-status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: fit-content;
+  max-width: 100%;
+  padding: 7px 12px;
+  border-radius: 20px;
+  background: #edf1ed;
+  color: #58675d;
+  font-size: 12px;
+  text-transform: capitalize;
+}
+
+.status-approved,
+.status-completed {
+  background: #e6f4e7;
+  color: #20764b;
+}
+
+.status-pending {
+  background: #fff4d9;
+  color: #8b6516;
+}
+
+.status-rejected,
+.status-cancelled {
+  background: #fff0ed;
+  color: #a74637;
+}
+
+.booking-decision-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.booking-decision-actions button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.charging-session-panel {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  margin-top: 4px;
+  padding: 24px;
+  border: 1px solid #dce7df;
+  border-radius: 16px;
+  background: #f8fafc;
+  overflow-wrap: anywhere;
+}
+
+.charging-session-panel h3 {
+  margin: 0 0 16px;
+  color: #18271f;
+  font-size: 20px;
+}
+
+.charging-session-panel > p {
+  margin: 10px 0;
+  color: #435349;
+  font-size: 14px;
+  line-height: 1.65;
+}
+
+.charging-session-panel .session-notice {
+  margin: 16px 0;
+  padding: 12px 14px;
+  border: 1px solid #f1dfad;
+  border-radius: 9px;
+  background: #fff9e9;
+  color: #795817;
+  line-height: 1.6;
+}
+
+/* Each meter-reading form is a vertical, full-width form card. */
+.charging-session-panel .meter-reading-form {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 16px;
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  margin: 18px 0 0;
+  padding: 20px;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background: #fff;
+}
+
+.charging-session-panel .meter-reading-form h4 {
+  margin: 0;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #edf0f3;
+  color: #172b3a;
+  font-size: 16px;
+}
+
+.charging-session-panel .meter-reading-form label {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  margin: 0;
+  color: #334155;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+.charging-session-panel .meter-reading-form input,
+.charging-session-panel .meter-reading-form textarea {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  margin: 0;
+  padding: 12px 14px;
+  border: 1px solid #cbd5e1;
+  border-radius: 9px;
+  background: #fff;
+  color: #172b3a;
+  font: inherit;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.charging-session-panel .meter-reading-form input::placeholder,
+.charging-session-panel .meter-reading-form textarea::placeholder {
+  color: #94a3b8;
+  font-weight: 400;
+}
+
+.charging-session-panel .meter-reading-form input:focus,
+.charging-session-panel .meter-reading-form textarea:focus {
+  outline: 2px solid #16866b;
+  outline-offset: 1px;
+  border-color: #16866b;
+}
+
+.charging-session-panel .meter-reading-form textarea {
+  min-height: 90px;
+  resize: vertical;
+}
+
+.charging-session-panel .meter-reading-form button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  align-self: flex-start;
+  box-sizing: border-box;
+  min-height: 46px;
+  max-width: 100%;
+  margin: 0;
+  padding: 12px 20px;
+  white-space: normal;
+  line-height: 1.4;
+}
+
+.charging-session-panel .session-result {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  margin-top: 20px;
+  padding: 20px;
+  border: 1px solid #cce8d4;
+  border-radius: 12px;
+  background: #f0faf3;
+  overflow-wrap: anywhere;
+}
+
+.charging-session-panel .session-result h4 {
+  margin: 0 0 16px;
+  color: #17653c;
+}
+
+.charging-session-panel .session-result p {
+  margin: 10px 0;
+  color: #435349;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.dashboard-tip {
+  margin-top: 22px;
+  padding: 20px;
+  display: flex;
+  align-items: flex-start;
+  gap: 15px;
+  border: 1px solid #dfe9d9;
+  border-radius: 12px;
+  background: #f0f6ec;
+}
+
+.dashboard-tip-icon {
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 10px;
+  background: #fff;
+  color: #20764b;
+  font-size: 23px;
+}
+
+.dashboard-tip strong {
+  font-size: 13px;
+}
+
+.dashboard-tip p {
+  margin: 7px 0 14px;
+  color: #657566;
+  font-size: 12px;
+  line-height: 1.8;
+}
+
+.dashboard-message {
+  width: min(600px, 90%);
+  margin: 100px auto;
+  padding: 30px;
+  border: 1px solid #e4eae1;
+  border-radius: 14px;
+  background: #fff;
+  text-align: center;
+}
+
+.dashboard-message h1 {
+  font-size: 25px;
+}
+
+.dashboard-message p {
+  color: #728077;
+  font-size: 13px;
+  line-height: 1.8;
+}
+
+@media (max-width: 800px) {
+  .dashboard-header {
+    padding: 15px 5%;
+    flex-wrap: wrap;
+  }
+
+  .dashboard-nav {
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .dashboard-user {
+    max-width: 130px;
+  }
+
+  .dashboard-content {
+    padding-top: 40px;
+  }
+
+  .dashboard-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .dashboard-stat {
+    padding: 19px;
+  }
+
+  .dashboard-panel {
+    padding: 18px;
+  }
+
+  .dashboard-panel-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .booking-row:not(:has(.charging-session-panel)) {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .booking-row:not(:has(.charging-session-panel)) .booking-row-actions {
+    width: 100%;
+    flex: 1 1 auto;
+    align-items: flex-start;
+  }
+
+  .charging-session-panel {
+    padding: 16px;
+  }
+
+  .charging-session-panel .meter-reading-form {
+    padding: 16px;
+    gap: 14px;
+  }
+
+  .charging-session-panel .meter-reading-form button {
+    align-self: stretch;
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .dashboard-content {
+    width: 92%;
+  }
+
+  .dashboard-panel {
+    padding: 14px;
+  }
+
+  .charging-session-panel {
+    padding: 12px;
+  }
+
+  .charging-session-panel .meter-reading-form {
+    padding: 12px;
+  }
+
+  .booking-decision-actions {
+    width: 100%;
+  }
+}
