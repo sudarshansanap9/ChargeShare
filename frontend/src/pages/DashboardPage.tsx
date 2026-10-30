@@ -116,6 +116,33 @@ type DriverChargingHistory = {
 
 type BookingDecision = 'approve' | 'reject'
 
+type EarningsSummary = {
+  currency: string
+  total_earnings: string
+  pending_payments: string
+  paid_transactions: number
+  pending_transactions: number
+  completed_sessions: number
+}
+
+type MonthlyEarning = {
+  month: string
+  earnings: string
+  currency: string
+}
+
+type EarningsTransaction = {
+  transaction_id: string
+  booking_id: string
+  charger_id: string
+  charger_name: string
+  location: string
+  amount: string
+  currency: string
+  payment_status: 'paid' | 'simulated' | 'refunded'
+  created_at: string
+}
+
 function formatDateTime(value?: string | null) {
   if (!value) return 'Not available'
 
@@ -170,6 +197,17 @@ export default function DashboardPage() {
   const navigate = useNavigate()
 
   const [user, setUser] = useState<UserProfile | null>(null)
+  const [earningsSummary, setEarningsSummary] =
+  useState<EarningsSummary | null>(null)
+
+const [monthlyEarnings, setMonthlyEarnings] =
+  useState<MonthlyEarning[]>([])
+
+const [earningsTransactions, setEarningsTransactions] =
+  useState<EarningsTransaction[]>([])
+
+const [earningsLoading, setEarningsLoading] = useState(false)
+const [earningsError, setEarningsError] = useState('')
   const [bookings, setBookings] = useState<Booking[]>([])
   const [chargingHistory, setChargingHistory] = useState<DriverChargingHistory[]>([])
   const [historyLoading, setHistoryLoading] = useState(false)
@@ -291,6 +329,49 @@ const handleSimulatePayment = async (item: DriverChargingHistory) => {
                   'Could not load your charging sessions.',
                 ),
               )
+            }
+          }
+                    // Load Host Earnings Dashboard data.
+          if (!cancelled) {
+            setEarningsLoading(true)
+            setEarningsError('')
+          }
+
+          try {
+            const [summaryResponse, monthlyResponse, transactionsResponse] =
+              await Promise.all([
+                api.get<EarningsSummary>('/api/v1/earnings/summary'),
+                api.get<MonthlyEarning[]>('/api/v1/earnings/monthly'),
+                api.get<EarningsTransaction[]>(
+                  '/api/v1/earnings/transactions',
+                ),
+              ])
+
+            if (!cancelled) {
+              setEarningsSummary(summaryResponse.data)
+              setMonthlyEarnings(
+                Array.isArray(monthlyResponse.data)
+                  ? monthlyResponse.data
+                  : [],
+              )
+              setEarningsTransactions(
+                Array.isArray(transactionsResponse.data)
+                  ? transactionsResponse.data
+                  : [],
+              )
+            }
+          } catch (earningsErr: unknown) {
+            if (!cancelled) {
+              setEarningsError(
+                getErrorMessage(
+                  earningsErr,
+                  'Could not load your earnings data.',
+                ),
+              )
+            }
+          } finally {
+            if (!cancelled) {
+              setEarningsLoading(false)
             }
           }
         } else if (!cancelled) {
@@ -607,7 +688,169 @@ const handleSimulatePayment = async (item: DriverChargingHistory) => {
             <small>Approved reservations</small>
           </article>
         </div>
+                {isHost && (
+          <section className="earnings-section">
+            <div className="earnings-heading">
+              <div>
+                <span className="section-kicker">HOST FINANCIAL OVERVIEW</span>
+                <h2>Your earnings</h2>
+                <p>Track payments and revenue from your charging stations.</p>
+              </div>
+              <span className="earnings-period">Last 12 months</span>
+            </div>
 
+            {earningsLoading ? (
+              <div className="dashboard-message" role="status">
+                Loading earnings data...
+              </div>
+            ) : earningsError ? (
+              <div className="dashboard-error" role="alert">
+                {earningsError}
+              </div>
+            ) : earningsSummary ? (
+              <>
+                <div className="earnings-stats">
+                  <article className="earnings-card earnings-primary">
+                    <span>Total earnings</span>
+                    <strong>
+                      {formatPrice(earningsSummary.total_earnings)}
+                    </strong>
+                    <small>Successfully paid transactions</small>
+                  </article>
+
+                  <article className="earnings-card">
+                    <span>Pending payments</span>
+                    <strong>
+                      {formatPrice(earningsSummary.pending_payments)}
+                    </strong>
+                    <small>
+                      {earningsSummary.pending_transactions} pending transactions
+                    </small>
+                  </article>
+
+                  <article className="earnings-card">
+                    <span>Paid transactions</span>
+                    <strong>{earningsSummary.paid_transactions}</strong>
+                    <small>Successful payments received</small>
+                  </article>
+
+                  <article className="earnings-card">
+                    <span>Completed sessions</span>
+                    <strong>{earningsSummary.completed_sessions}</strong>
+                    <small>Charging sessions completed</small>
+                  </article>
+                </div>
+
+                <div className="earnings-panel">
+                  <div className="dashboard-panel-heading">
+                    <div>
+                      <h3>Monthly earnings</h3>
+                      <p>Your successful payment history by month.</p>
+                    </div>
+                  </div>
+
+                  {monthlyEarnings.length === 0 ? (
+                    <p className="earnings-empty">
+                      No monthly earnings recorded yet.
+                    </p>
+                  ) : (
+                    <div className="earnings-chart">
+                      {monthlyEarnings.map((item) => {
+                        const amount = Number(item.earnings)
+                        const maximum = Math.max(
+                          ...monthlyEarnings.map((entry) =>
+                            Number(entry.earnings),
+                          ),
+                          1,
+                        )
+                        const width = (amount / maximum) * 100
+
+                        return (
+                          <div className="earnings-chart-row" key={item.month}>
+                            <span className="earnings-chart-month">
+                              {new Date(
+                                `${item.month}-01T00:00:00`,
+                              ).toLocaleDateString('en-IN', {
+                                month: 'short',
+                                year: 'numeric',
+                              })}
+                            </span>
+
+                            <div className="earnings-chart-track">
+                              <div
+                                className="earnings-chart-bar"
+                                style={{ width: `${width}%` }}
+                              />
+                            </div>
+
+                            <strong>{formatPrice(item.earnings)}</strong>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  )}
+                </div>
+
+                <div className="earnings-panel">
+                  <div className="dashboard-panel-heading">
+                    <div>
+                      <h3>Recent transactions</h3>
+                      <p>Payment activity across your charging stations.</p>
+                    </div>
+                  </div>
+
+                  {earningsTransactions.length === 0 ? (
+                    <p className="earnings-empty">
+                      No transactions recorded yet.
+                    </p>
+                  ) : (
+                    <div className="earnings-table-wrapper">
+                      <table className="earnings-table">
+                        <thead>
+                          <tr>
+                            <th>Charger</th>
+                            <th>Location</th>
+                            <th>Amount</th>
+                            <th>Status</th>
+                            <th>Date</th>
+                            <th>Transaction ID</th>
+                          </tr>
+                        </thead>
+
+                        <tbody>
+                          {earningsTransactions.map((transaction) => (
+                            <tr key={transaction.transaction_id}>
+                              <td>{transaction.charger_name}</td>
+                              <td>{transaction.location}</td>
+                              <td>{formatPrice(transaction.amount)}</td>
+                              <td>
+                                <span
+                                  className={`earnings-status status-${transaction.payment_status}`}
+                                >
+                                  {transaction.payment_status}
+                                </span>
+                              </td>
+                              <td>{formatDateTime(transaction.created_at)}</td>
+                              <td>
+                                <span className="earnings-transaction-id">
+                                  {transaction.transaction_id.slice(0, 8)}...
+                                </span>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                </div>
+              </>
+            ) : (
+              <div className="earnings-empty">
+                Earnings data is currently unavailable.
+              </div>
+            )}
+          </section>
+        )}
         <section className="dashboard-panel">
           <div className="dashboard-panel-heading">
             <div>
