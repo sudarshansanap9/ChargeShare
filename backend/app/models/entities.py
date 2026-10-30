@@ -53,8 +53,8 @@ class BookingStatus(str, enum.Enum):
 
 class PaymentStatus(str, enum.Enum):
     simulated = "simulated"
+    paid = "paid"
     refunded = "refunded"
-
 
 class ChargingSessionStatus(str, enum.Enum):
     active = "active"

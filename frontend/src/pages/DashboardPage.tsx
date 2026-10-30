@@ -53,6 +53,9 @@ type ChargingSession = {
   energy_kwh: number | string | null
   agreed_price_per_kwh: number | string
   final_amount: number | string | null
+  payment_status: 'pending' | 'paid' | 'simulated' | 'refunded'
+  payment_id: string | null
+  payment_amount: number | string | null
   meter_readings?: {
     start: MeterReading | null
     end: MeterReading | null
@@ -98,6 +101,9 @@ type DriverChargingHistory = {
   energy_kwh: number | string | null
   price_per_kwh_inr: number | string | null
   final_amount_inr: number | string | null
+    payment_status: 'pending' | 'paid' | 'simulated' | 'refunded'
+  payment_id: string | null
+  payment_amount: number | string | null
   measurement_notice: string
   charger: {
     id: string
@@ -113,7 +119,12 @@ type BookingDecision = 'approve' | 'reject'
 function formatDateTime(value?: string | null) {
   if (!value) return 'Not available'
 
-  const date = new Date(value)
+  // Backend timestamps without an offset are stored as UTC.
+  const normalizedValue = /(?:Z|[+-]\d{2}:\d{2})$/i.test(value)
+    ? value
+    : `${value}Z`
+
+  const date = new Date(normalizedValue)
 
   if (Number.isNaN(date.getTime())) return 'Not available'
 
@@ -170,6 +181,9 @@ export default function DashboardPage() {
   const [notice, setNotice] = useState('')
   const [processingBookingId, setProcessingBookingId] = useState<string | null>(null)
   const [processingSessionId, setProcessingSessionId] = useState<string | null>(null)
+  const [processingPaymentId, setProcessingPaymentId] = useState<string | null>(null)
+const [paymentError, setPaymentError] = useState('')
+const [paymentNotice, setPaymentNotice] = useState('')
 
   const [readingValues, setReadingValues] = useState<Record<string, string>>({})
   const [evidenceReferences, setEvidenceReferences] = useState<Record<string, string>>({})
@@ -184,6 +198,41 @@ export default function DashboardPage() {
     const response = await api.get<Booking[]>(endpoint)
     setBookings(Array.isArray(response.data) ? response.data : [])
   }, [])
+const handleSimulatePayment = async (item: DriverChargingHistory) => {
+  setProcessingPaymentId(item.booking_id)
+  setPaymentError('')
+  setPaymentNotice('')
+
+  try {
+    const response = await api.post(
+      `/api/v1/payments/bookings/${item.booking_id}/simulate`,
+    )
+
+    setChargingHistory((current) =>
+      current.map((session) =>
+        session.booking_id === item.booking_id
+          ? {
+              ...session,
+              payment_status: response.data.payment_status,
+              payment_id: response.data.payment_id,
+              payment_amount: response.data.amount,
+            }
+          : session,
+      ),
+    )
+
+    setPaymentNotice(
+      `Simulated payment successful. Transaction ID: ${response.data.payment_id}`,
+    )
+  } catch (err: unknown) {
+    setPaymentError(
+      getErrorMessage(err, 'Could not complete simulated payment.'),
+    )
+  } finally {
+    setProcessingPaymentId(null)
+  }
+}
+
 
   useEffect(() => {
     let cancelled = false
@@ -748,7 +797,28 @@ export default function DashboardPage() {
                                 <strong>Final amount:</strong>{' '}
                                 {formatPrice(session.final_amount)}
                               </p>
-                              <p><strong>Payment:</strong> pending simulated payment</p>
+                              <div className="session-result">
+  <h4>Payment details</h4>
+
+  <p>
+    <strong>Payment status:</strong>{' '}
+    {session.payment_status === 'paid' ? 'Paid' : 'Pending'}
+  </p>
+
+  {session.payment_status === 'paid' && (
+    <>
+      <p>
+        <strong>Transaction ID:</strong>{' '}
+        {session.payment_id || 'Not available'}
+      </p>
+
+      <p>
+        <strong>Paid amount:</strong>{' '}
+        {formatPrice(session.payment_amount ?? session.final_amount)}
+      </p>
+    </>
+  )}
+</div>
                               <p className="session-notice">
                                 Meter readings are host-reported and not independently verified.
                               </p>
@@ -776,6 +846,18 @@ export default function DashboardPage() {
             {historyError && (
               <div className="dashboard-error" role="alert">{historyError}</div>
             )}
+
+            {paymentError && (
+  <div className="dashboard-error" role="alert">
+    {paymentError}
+  </div>
+)}
+
+{paymentNotice && (
+  <div className="dashboard-success" role="status">
+    {paymentNotice}
+  </div>
+)}
 
             {historyLoading ? (
               <div className="dashboard-empty">
@@ -809,11 +891,49 @@ export default function DashboardPage() {
                         <span><strong>Agreed rate:</strong> {formatPrice(item.price_per_kwh_inr)} / kWh</span>
                         <span><strong>Final amount:</strong> {finalAmount === null || finalAmount === undefined ? 'Not calculated yet' : formatPrice(finalAmount)}</span>
                       </div>
+<div className="booking-row-actions">
+  <span className={`booking-status status-${status}`}>
+    {status.replaceAll('_', ' ')}
+  </span>
 
-                      <div className="booking-row-actions">
-                        <span className={`booking-status status-${status}`}>{status.replaceAll('_', ' ')}</span>
-                        <p className="session-notice">{item.measurement_notice}</p>
-                      </div>
+  <p className="session-notice">{item.measurement_notice}</p>
+
+  {status === 'completed' && (
+    <div className="session-result">
+      <h4>Payment details</h4>
+
+      <p>
+        <strong>Payment status:</strong>{' '}
+        {item.payment_status === 'paid' ? 'Paid' : 'Pending'}
+      </p>
+
+      {item.payment_status === 'paid' ? (
+        <>
+          <p>
+            <strong>Transaction ID:</strong>{' '}
+            {item.payment_id || 'Not available'}
+          </p>
+          <p>
+            <strong>Paid amount:</strong>{' '}
+            {formatPrice(item.payment_amount ?? item.final_amount_inr)}
+          </p>
+        </>
+      ) : (
+        <button
+          className="button"
+          type="button"
+          disabled={processingPaymentId !== null}
+          onClick={() => void handleSimulatePayment(item)}
+        >
+          {processingPaymentId === item.booking_id
+            ? 'Processing payment...'
+            : 'Pay Now'}
+        </button>
+      )}
+    </div>
+  )}
+</div>
+
                     </article>
                   )
                 })}

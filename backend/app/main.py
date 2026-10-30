@@ -14,6 +14,7 @@ from app.api.routes.bookings import router as bookings_router
 from app.api.routes.charging_sessions import (
     router as charging_sessions_router,
 )
+from app.api.routes.payments import router as payments_router
 
 
 @asynccontextmanager
@@ -46,6 +47,7 @@ app.include_router(auth_router)
 app.include_router(chargers_router)
 app.include_router(bookings_router)
 app.include_router(charging_sessions_router)
+app.include_router(payments_router)
 
 
 

@@ -12,6 +12,8 @@ from app.models.entities import (
     Charger,
     ChargingSession,
     ChargingSessionStatus,
+    DemoPayment,
+    PaymentStatus,
     UserRole,
 )
 from app.schemas.charging_session import (
@@ -40,15 +42,17 @@ def get_my_charging_sessions(
     """Return charging-session history for the logged-in driver."""
 
     sessions = db.scalars(
-        select(ChargingSession)
-        .join(Booking, ChargingSession.booking_id == Booking.id)
-        .options(
-            joinedload(ChargingSession.booking)
-            .joinedload(Booking.charger)
-        )
-        .where(Booking.driver_id == current_user.id)
-        .order_by(ChargingSession.started_at.desc())
-    ).all()
+    select(ChargingSession)
+    .join(Booking, ChargingSession.booking_id == Booking.id)
+    .options(
+        joinedload(ChargingSession.booking)
+        .joinedload(Booking.charger),
+        joinedload(ChargingSession.booking)
+        .joinedload(Booking.payment),
+    )
+    .where(Booking.driver_id == current_user.id)
+    .order_by(ChargingSession.started_at.desc())
+).unique().all()
     results = []
 
     for session in sessions:
@@ -64,6 +68,21 @@ def get_my_charging_sessions(
             "energy_kwh": session.energy_kwh,
             "price_per_kwh_inr": session.agreed_price_per_kwh,
             "final_amount_inr": session.final_amount,
+            "payment_status": (
+    booking.payment.status.value
+    if booking.payment
+    else "pending"
+),
+"payment_id": (
+    booking.payment.id
+    if booking.payment
+    else None
+),
+"payment_amount": (
+    str(booking.payment.amount)
+    if booking.payment
+    else None
+),
             "measurement_notice": (
                 "Meter readings are host-reported "
                 "and not independently verified."
@@ -92,12 +111,14 @@ def get_host_charging_sessions(
         .join(Booking, ChargingSession.booking_id == Booking.id)
         .join(Charger, Booking.charger_id == Charger.id)
         .options(
-            joinedload(ChargingSession.booking)
-            .joinedload(Booking.charger),
-            joinedload(ChargingSession.booking)
-            .joinedload(Booking.driver),
-            joinedload(ChargingSession.meter_readings),
-        )
+    joinedload(ChargingSession.booking)
+    .joinedload(Booking.charger),
+    joinedload(ChargingSession.booking)
+    .joinedload(Booking.driver),
+    joinedload(ChargingSession.booking)
+    .joinedload(Booking.payment),
+    joinedload(ChargingSession.meter_readings),
+)
         .where(Charger.host_id == current_user.id)
         .order_by(ChargingSession.started_at.desc())
     ).unique().all()
@@ -134,7 +155,22 @@ def get_host_charging_sessions(
             "energy_kwh": session.energy_kwh,
             "agreed_price_per_kwh": session.agreed_price_per_kwh,
             "final_amount": session.final_amount,
-            "charger_id": charger.id,
+"payment_status": (
+    booking.payment.status.value
+    if booking.payment
+    else "pending"
+),
+"payment_id": (
+    booking.payment.id
+    if booking.payment
+    else None
+),
+"payment_amount": (
+    str(booking.payment.amount)
+    if booking.payment
+    else None
+),
+"charger_id": charger.id,
             "driver_id": booking.driver_id,
             "meter_readings": {
                 "start": serialize_reading("start"),
