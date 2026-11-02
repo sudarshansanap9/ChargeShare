@@ -918,18 +918,11 @@ onClick={async (event) => {
           © 2026 ChargeShare · Portfolio demo
         </span>
       </footer>
-
-      <div className="demo-banner" role="status">
-        <span className="demo-banner-dot" />
-        Charger data is live from the API; booking and payment flows are not
-        connected to these buttons yet.
-      </div>
       {bookingNotice && (
   <div className="demo-banner" role="status">
     {bookingNotice}
   </div>
 )}
-
 {selectedCharger && (
   <BookingModal
     charger={selectedCharger}

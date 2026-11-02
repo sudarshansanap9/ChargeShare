@@ -19,7 +19,15 @@ type GoogleMap = {
   setZoom: (zoom: number) => void
   fitBounds: (bounds: unknown, padding?: number) => void
 }
+type GooglePolyline = {
+  setMap: (map: GoogleMap | null) => void
+}
 
+type RouteResult = {
+  distanceKm: number
+  durationMinutes: number
+  coordinates: LatLng[]
+}
 type GoogleMarker = {
   addListener: (event: string, callback: () => void) => void
   setMap: (map: GoogleMap | null) => void
@@ -31,6 +39,7 @@ type GoogleMarker = {
 
 type GoogleMapsApi = {
   maps: {
+    Polyline: new (options: Record<string, unknown>) => GooglePolyline
     Animation: {
         BOUNCE: unknown
     }
@@ -123,6 +132,37 @@ function distanceKm(from: LatLng, to: LatLng): number {
 
   return 6371 * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
 }
+async function fetchDrivingRoute(
+  origin: LatLng,
+  destination: LatLng,
+): Promise<RouteResult> {
+  const url =
+    `https://router.project-osrm.org/route/v1/driving/` +
+    `${origin.lng},${origin.lat};${destination.lng},${destination.lat}` +
+    `?overview=full&geometries=geojson`
+
+  const response = await fetch(url)
+
+  if (!response.ok) {
+    throw new Error('Unable to calculate driving route.')
+  }
+
+  const data = await response.json()
+
+  if (data.code !== 'Ok' || !data.routes?.length) {
+    throw new Error('No driving route found for this charger.')
+  }
+
+  const route = data.routes[0]
+
+  return {
+    distanceKm: route.distance / 1000,
+    durationMinutes: route.duration / 60,
+    coordinates: route.geometry.coordinates.map(
+      ([lng, lat]: [number, number]) => ({ lat, lng }),
+    ),
+  }
+}
 
 function directionsUrl(destination: LatLng, origin?: LatLng): string {
   const params = new URLSearchParams({
@@ -160,6 +200,7 @@ export default function ChargingStationMap({
   const mapRef = useRef<GoogleMap | null>(null)
   const markersRef = useRef<GoogleMarker[]>([])
   const userMarkerRef = useRef<GoogleMarker | null>(null)
+  const routeLineRef = useRef<GooglePolyline | null>(null)
 
   const onSelectChargerRef = useRef(onSelectCharger)
 
@@ -171,6 +212,9 @@ useEffect(() => {
   const [mapReady, setMapReady] = useState(false)
   const [userLocation, setUserLocation] = useState<LatLng | null>(null)
   const [locationMessage, setLocationMessage] = useState('')
+  const [routeResult, setRouteResult] = useState<RouteResult | null>(null)
+const [routeLoading, setRouteLoading] = useState(false)
+const [routeError, setRouteError] = useState('')
 
   const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY?.trim()
   const missingKeyMessage =
@@ -292,7 +336,78 @@ const displayedMapError = !apiKey ? missingKeyMessage : mapError
       map.setZoom(12)
     }
   }, [validChargers, mapReady, userLocation])
+useEffect(() => {
+  const mapInstance = mapRef.current
+const mapsApi = window.google?.maps
 
+if (!mapInstance || !mapsApi || !mapReady) return
+
+const activeMap = mapInstance
+const activeMapsApi = mapsApi
+
+  // Remove the previous route.
+  routeLineRef.current?.setMap(null)
+  routeLineRef.current = null
+
+  setRouteResult(null)
+  setRouteError('')
+
+  if (!userLocation || !selectedChargerId) return
+
+  const charger = validChargers.find(
+    (item) => item.id === selectedChargerId,
+  )
+
+  if (!charger) return
+
+  const origin = userLocation
+  const destination = {
+    lat: charger.latitude,
+    lng: charger.longitude,
+  }
+
+  let cancelled = false
+
+  async function calculateRoute() {
+    setRouteLoading(true)
+
+    try {
+      const result = await fetchDrivingRoute(origin, destination)
+
+      if (cancelled) return
+
+      setRouteResult(result)
+
+      routeLineRef.current = new activeMapsApi.Polyline({
+  map: activeMap,
+        path: result.coordinates,
+        strokeColor: '#2563eb',
+        strokeOpacity: 0.9,
+        strokeWeight: 5,
+      })
+
+      const bounds = new activeMapsApi.LatLngBounds()
+result.coordinates.forEach((point) => bounds.extend(point))
+activeMap.fitBounds(bounds, 60)
+    } catch (error) {
+      if (!cancelled) {
+        setRouteError(
+          error instanceof Error
+            ? error.message
+            : 'Could not calculate driving route.',
+        )
+      }
+    } finally {
+      if (!cancelled) setRouteLoading(false)
+    }
+  }
+
+  void calculateRoute()
+
+  return () => {
+    cancelled = true
+  }
+}, [userLocation, selectedChargerId, validChargers, mapReady])
 useEffect(() => {
   if (!mapReady) return
 
@@ -435,6 +550,55 @@ useEffect(() => {
           {locationMessage}
         </p>
       )}
+      {routeLoading && (
+  <p className="map-status" role="status">
+    Calculating driving route...
+  </p>
+)}
+
+{routeError && (
+  <p className="map-status map-error" role="alert">
+    {routeError}
+  </p>
+)}
+
+{routeResult && (
+  <div className="map-nearby-list">
+    <strong>Driving route to selected charger</strong>
+
+    <div className="map-nearby-row">
+      <div>
+        <strong>{routeResult.distanceKm.toFixed(1)} km</strong>
+        <span>Estimated road distance</span>
+      </div>
+
+      <div>
+        <strong>
+          {Math.round(routeResult.durationMinutes)} min
+        </strong>
+        <span>Estimated driving time</span>
+      </div>
+    </div>
+    <a
+  href={directionsUrl(
+    {
+      lat: validChargers.find(
+        (charger) => charger.id === selectedChargerId,
+      )!.latitude,
+      lng: validChargers.find(
+        (charger) => charger.id === selectedChargerId,
+      )!.longitude,
+    },
+    userLocation ?? undefined,
+  )}
+  target="_blank"
+  rel="noopener noreferrer"
+  className="button button-outline"
+>
+  Open in Google Maps ↗
+</a>
+  </div>
+)}
 
       {mapReady && validChargers.length === 0 && (
         <p className="map-status">

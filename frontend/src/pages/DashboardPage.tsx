@@ -222,6 +222,7 @@ const [earningsError, setEarningsError] = useState('')
   const [processingPaymentId, setProcessingPaymentId] = useState<string | null>(null)
 const [paymentError, setPaymentError] = useState('')
 const [paymentNotice, setPaymentNotice] = useState('')
+const [copyStatus, setCopyStatus] = useState<Record<string, 'copied' | 'error'>>({})
 
   const [readingValues, setReadingValues] = useState<Record<string, string>>({})
   const [evidenceReferences, setEvidenceReferences] = useState<Record<string, string>>({})
@@ -667,6 +668,16 @@ const handleSimulatePayment = async (item: DriverChargingHistory) => {
             ? 'Manage your chargers, bookings, and charging sessions.'
             : 'Track your charging reservations and their status.'}
         </p>
+        {isHost && (
+  <div className="dashboard-tip">
+    <span className="dashboard-tip-icon">ϟ</span>
+    <div>
+      <strong>Manage your charging network</strong>
+      <p>Add chargers, update pricing and specifications, or deactivate listings that are no longer available.</p>
+      <Link className="button" to="/host/chargers">Manage my chargers →</Link>
+    </div>
+  </div>
+)}
 
         {error && <div className="dashboard-error" role="alert">{error}</div>}
         {notice && <div className="dashboard-notice" role="status">{notice}</div>}
@@ -750,45 +761,60 @@ const handleSimulatePayment = async (item: DriverChargingHistory) => {
                   </div>
 
                   {monthlyEarnings.length === 0 ? (
-                    <p className="earnings-empty">
-                      No monthly earnings recorded yet.
-                    </p>
-                  ) : (
-                    <div className="earnings-chart">
-                      {monthlyEarnings.map((item) => {
-                        const amount = Number(item.earnings)
-                        const maximum = Math.max(
-                          ...monthlyEarnings.map((entry) =>
-                            Number(entry.earnings),
-                          ),
-                          1,
-                        )
-                        const width = (amount / maximum) * 100
+  <p className="earnings-empty">
+    No monthly earnings recorded yet.
+  </p>
+) : (
+  <div className="earnings-chart-scroll">
+    <div className="earnings-bar-chart">
+      {Array.from({ length: 12 }, (_, index) => {
+        const date = new Date()
+        date.setDate(1)
+        date.setMonth(date.getMonth() - 11 + index)
 
-                        return (
-                          <div className="earnings-chart-row" key={item.month}>
-                            <span className="earnings-chart-month">
-                              {new Date(
-                                `${item.month}-01T00:00:00`,
-                              ).toLocaleDateString('en-IN', {
-                                month: 'short',
-                                year: 'numeric',
-                              })}
-                            </span>
+        const month = [
+          date.getFullYear(),
+          String(date.getMonth() + 1).padStart(2, '0'),
+        ].join('-')
 
-                            <div className="earnings-chart-track">
-                              <div
-                                className="earnings-chart-bar"
-                                style={{ width: `${width}%` }}
-                              />
-                            </div>
+        const item = monthlyEarnings.find(
+          (entry) => entry.month === month,
+        )
 
-                            <strong>{formatPrice(item.earnings)}</strong>
-                          </div>
-                        )
-                      })}
-                    </div>
-                  )}
+        const amount = item ? Number(item.earnings) : 0
+
+        const maximum = Math.max(
+          1,
+          ...monthlyEarnings.map((entry) => Number(entry.earnings)),
+        )
+
+        const height = (amount / maximum) * 100
+
+        return (
+          <div className="earnings-bar-column" key={month}>
+            <strong className="earnings-bar-value">
+              {amount > 0 ? formatPrice(amount) : ''}
+            </strong>
+
+            <div className="earnings-bar-area">
+              <div
+                className="earnings-vertical-bar"
+                style={{ height: `${height}%` }}
+                title={`${month}: ${formatPrice(amount)}`}
+              />
+            </div>
+
+            <span className="earnings-bar-month">
+              {date.toLocaleDateString('en-IN', {
+                month: 'short',
+              })}
+            </span>
+          </div>
+        )
+      })}
+    </div>
+  </div>
+)}
                 </div>
 
                 <div className="earnings-panel">
@@ -832,10 +858,46 @@ const handleSimulatePayment = async (item: DriverChargingHistory) => {
                               </td>
                               <td>{formatDateTime(transaction.created_at)}</td>
                               <td>
-                                <span className="earnings-transaction-id">
-                                  {transaction.transaction_id.slice(0, 8)}...
-                                </span>
-                              </td>
+  <div className="earnings-transaction-cell">
+    <span
+      className="earnings-transaction-id"
+      title={transaction.transaction_id}
+    >
+      {transaction.transaction_id.slice(0, 8)}...
+    </span>
+
+    <button
+  type="button"
+  className="copy-transaction-button"
+  title="Copy full transaction ID"
+  aria-label="Copy full transaction ID"
+  onClick={async () => {
+  try {
+    await navigator.clipboard.writeText(transaction.transaction_id)
+    setCopyStatus((previous) => ({
+      ...previous,
+      [transaction.transaction_id]: 'copied',
+    }))
+  } catch {
+    setCopyStatus((previous) => ({
+      ...previous,
+      [transaction.transaction_id]: 'error',
+    }))
+  }
+}}
+>
+  <span aria-hidden="true">⧉</span>
+</button>
+{copyStatus[transaction.transaction_id] === 'copied' && (
+  <span className="copy-feedback" role="status">Copied!</span>
+)}
+{copyStatus[transaction.transaction_id] === 'error' && (
+  <span className="copy-feedback copy-feedback-error" role="alert">
+    Copy failed
+  </span>
+)}
+  </div>
+</td>
                             </tr>
                           ))}
                         </tbody>
@@ -1121,7 +1183,7 @@ const handleSimulatePayment = async (item: DriverChargingHistory) => {
                   const finalAmount = item.final_amount_inr
 
                   return (
-                    <article className="booking-row" key={item.session_id}>
+                    <article className="booking-row driver-charging-history-row" key={item.session_id}>
                       <div className="booking-row-details">
                         <strong>{item.charger?.title || 'Charger details unavailable'}</strong>
                         <span>{item.charger?.location_name || 'Location unavailable'}</span>
@@ -1185,16 +1247,7 @@ const handleSimulatePayment = async (item: DriverChargingHistory) => {
           </section>
         )}
 
-        {isHost && (
-          <div className="dashboard-tip">
-            <span className="dashboard-tip-icon">ϟ</span>
-            <div>
-              <strong>Manage your charging network</strong>
-              <p>Add chargers, update pricing and specifications, or deactivate listings that are no longer available.</p>
-              <Link className="button" to="/host/chargers">Manage my chargers →</Link>
-            </div>
-          </div>
-        )}
+
       </section>
     </main>
   )

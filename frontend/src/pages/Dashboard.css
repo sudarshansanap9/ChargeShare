@@ -388,6 +388,15 @@
   color: #172b3a;
   font-size: 16px;
 }
+/* Compact spacing for submitted meter readings */
+.charging-session-panel .meter-reading-form > p {
+  margin: 0;
+  line-height: 1.5;
+}
+
+.charging-session-panel .meter-reading-form > .session-notice {
+  margin: 0;
+}
 
 .charging-session-panel .meter-reading-form label {
   display: flex;
@@ -572,6 +581,10 @@
     flex-direction: column;
     gap: 16px;
   }
+  .booking-row:not(:has(.charging-session-panel)) .booking-row-details,
+.booking-row:not(:has(.charging-session-panel)) .booking-row-actions {
+  flex: 0 0 auto;
+}
 
   .booking-row:not(:has(.charging-session-panel)) .booking-row-actions {
     width: 100%;
@@ -704,43 +717,65 @@
   margin: 0 0 7px;
   font-size: 19px;
 }
-
-.earnings-chart {
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
+/* Monthly earnings vertical bar chart */
+.earnings-chart-scroll {
+  width: 100%;
+  overflow-x: auto;
+  padding-bottom: 8px;
 }
 
-.earnings-chart-row {
+.earnings-bar-chart {
   display: grid;
-  grid-template-columns: 110px minmax(60px, 1fr) 105px;
-  align-items: center;
-  gap: 15px;
+  grid-template-columns: repeat(12, minmax(55px, 1fr));
+  gap: 12px;
+  min-width: 720px;
+  height: 230px;
+  padding-top: 10px;
 }
 
-.earnings-chart-month {
-  font-size: 13px;
-  color: #64748b;
+.earnings-bar-column {
+  display: grid;
+  grid-template-rows: 30px minmax(0, 1fr) 25px;
+  align-items: end;
+  gap: 8px;
+  min-width: 0;
+  text-align: center;
 }
 
-.earnings-chart-track {
-  height: 12px;
+.earnings-bar-value {
+  font-size: 10px;
+  color: #176b48;
+  white-space: nowrap;
   overflow: hidden;
-  border-radius: 20px;
-  background: #edf2f3;
+  text-overflow: ellipsis;
 }
 
-.earnings-chart-bar {
+.earnings-bar-area {
   height: 100%;
-  min-width: 3px;
-  border-radius: inherit;
-  background: #159b69;
-  transition: width 0.3s ease;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  border-bottom: 1px solid #e5ece7;
+  background: linear-gradient(
+    to bottom,
+    transparent 49.5%,
+    #edf2ef 50%,
+    transparent 50.5%
+  );
 }
 
-.earnings-chart-row strong {
-  text-align: right;
-  font-size: 13px;
+.earnings-vertical-bar {
+  width: 65%;
+  min-height: 0;
+  border-radius: 6px 6px 0 0;
+  background: #159b69;
+  transition: height 0.3s ease;
+}
+
+.earnings-bar-month {
+  font-size: 12px;
+  color: #64748b;
+  text-align: center;
 }
 
 .earnings-table-wrapper {
@@ -797,6 +832,28 @@
   font-family: monospace;
   color: #64748b;
 }
+.earnings-transaction-cell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.copy-transaction-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5px;
+  border: 1px solid #dce8df;
+  border-radius: 6px;
+  background: #f7faf8;
+  color: #176b48;
+  cursor: pointer;
+}
+
+.copy-transaction-button:hover {
+  background: #e5f7ed;
+}
 
 .earnings-empty {
   padding: 22px;
@@ -828,12 +885,94 @@
     font-size: 24px;
   }
 
-  .earnings-chart-row {
-    grid-template-columns: 75px minmax(40px, 1fr) 85px;
-    gap: 8px;
+}
+/* Driver charging history layout */
+.driver-charging-history-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(260px, 0.8fr);
+  align-items: start;
+  gap: 28px;
+}
+
+.driver-charging-history-row .booking-row-details {
+  width: 100%;
+  flex: none;
+}
+
+.driver-charging-history-row .booking-row-actions {
+  width: 100%;
+  min-width: 0;
+  flex: none;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.driver-charging-history-row .booking-status {
+  align-self: flex-start;
+}
+
+.driver-charging-history-row .session-notice {
+  margin: 0;
+  padding: 10px 12px;
+  border: 1px solid #e5eadf;
+  border-radius: 8px;
+  background: #f7faf5;
+  color: #647267;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.driver-charging-history-row .session-result {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  margin: 0;
+  padding: 18px;
+  border: 1px solid #dce7df;
+  border-radius: 12px;
+  background: #f8faf8;
+  overflow-wrap: anywhere;
+}
+
+.driver-charging-history-row .session-result h4 {
+  margin: 0 0 14px;
+  color: #17653c;
+  font-size: 16px;
+}
+
+.driver-charging-history-row .session-result p {
+  margin: 9px 0;
+  color: #435349;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.driver-charging-history-row .session-result button {
+  margin-top: 8px;
+}
+
+@media (max-width: 760px) {
+  .driver-charging-history-row {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 18px;
   }
 
-  .earnings-chart-row strong {
-    font-size: 12px;
+  .driver-charging-history-row .booking-row-actions {
+    align-items: stretch;
   }
+
+  .driver-charging-history-row .booking-status {
+    align-self: flex-start;
+  }
+}
+/* Transaction copy feedback */
+.copy-feedback {
+  font-size: 11px;
+  font-weight: 600;
+  color: #176b48;
+  white-space: nowrap;
+}
+
+.copy-feedback-error {
+  color: #dc2626;
 }
